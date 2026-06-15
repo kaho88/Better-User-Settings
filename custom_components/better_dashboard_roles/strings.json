@@ -3,23 +3,23 @@
     "step": {
       "user": {
         "title": "Better Dashboard Roles",
-        "description": "Configure dashboard role filtering. The text fields use YAML snippets without the top-level better_dashboard_roles key.",
+        "description": "Dashboard-Rollen einrichten. Die großen Felder sind YAML-Ausschnitte ohne den obersten better_dashboard_roles-Schlüssel.",
         "data": {
-          "users_yaml": "Users and roles",
-          "dashboards_yaml": "Dashboards and allowed roles",
-          "default_dashboard_yaml": "Default dashboard per role",
-          "hide_sidebar_items": "Hide sidebar dashboard links",
-          "redirect_blocked_dashboards": "Redirect blocked dashboards",
-          "hide_admin_menu_for_non_admin": "Hide admin menu for non-admin roles",
-          "debug": "Enable debug logs"
+          "users_yaml": "Benutzer und Rollen",
+          "dashboards_yaml": "Dashboards und erlaubte Rollen",
+          "default_dashboard_yaml": "Standard-Dashboard je Rolle",
+          "hide_sidebar_items": "Sidebar-Dashboard-Links ausblenden",
+          "redirect_blocked_dashboards": "Nicht erlaubte Dashboards umleiten",
+          "hide_admin_menu_for_non_admin": "Admin-Menü für Nicht-Admins ausblenden",
+          "debug": "Debug-Logs aktivieren"
         }
       }
     },
     "error": {
-      "invalid_yaml": "The YAML is invalid.",
-      "invalid_users": "Each user needs a role value.",
-      "invalid_dashboards": "Each dashboard needs a roles list.",
-      "invalid_defaults": "Default dashboards must be role-to-dashboard text pairs."
+      "invalid_yaml": "Das YAML ist ungültig.",
+      "invalid_users": "Jeder Benutzer braucht einen role-Wert.",
+      "invalid_dashboards": "Jedes Dashboard braucht eine roles-Liste.",
+      "invalid_defaults": "Standard-Dashboards müssen Rolle-zu-Dashboard-Textpaare sein."
     },
     "abort": {
       "already_configured": "Better Dashboard Roles is already configured."
@@ -28,40 +28,40 @@
   "options": {
     "menu": {
       "init": {
-        "assign_user": "Assign user role",
-        "edit_all": "Edit full configuration"
+        "assign_user": "Benutzerrolle setzen",
+        "edit_all": "Komplette Konfiguration bearbeiten"
       }
     },
     "step": {
       "edit_all": {
         "title": "Better Dashboard Roles",
-        "description": "Update dashboard role filtering. Changes are saved in Home Assistant storage and do not require editing configuration.yaml.",
+        "description": "Dashboard-Rollen bearbeiten. Änderungen werden in Home Assistant gespeichert; configuration.yaml muss dafür nicht angepasst werden.",
         "data": {
-          "users_yaml": "Users and roles",
-          "dashboards_yaml": "Dashboards and allowed roles",
-          "default_dashboard_yaml": "Default dashboard per role",
-          "hide_sidebar_items": "Hide sidebar dashboard links",
-          "redirect_blocked_dashboards": "Redirect blocked dashboards",
-          "hide_admin_menu_for_non_admin": "Hide admin menu for non-admin roles",
-          "debug": "Enable debug logs"
+          "users_yaml": "Benutzer und Rollen",
+          "dashboards_yaml": "Dashboards und erlaubte Rollen",
+          "default_dashboard_yaml": "Standard-Dashboard je Rolle",
+          "hide_sidebar_items": "Sidebar-Dashboard-Links ausblenden",
+          "redirect_blocked_dashboards": "Nicht erlaubte Dashboards umleiten",
+          "hide_admin_menu_for_non_admin": "Admin-Menü für Nicht-Admins ausblenden",
+          "debug": "Debug-Logs aktivieren"
         }
       },
       "assign_user": {
-        "title": "Assign user role",
-        "description": "Select a Home Assistant user and assign a role. The assignment is stored in Home Assistant storage.",
+        "title": "Benutzerrolle setzen",
+        "description": "Home-Assistant-Benutzer auswählen und Rolle eintragen. Die Zuordnung wird in Home Assistant gespeichert.",
         "data": {
-          "selected_user": "Home Assistant user",
-          "assigned_role": "Role"
+          "selected_user": "Home-Assistant-Benutzer",
+          "assigned_role": "Rolle"
         }
       }
     },
     "error": {
-      "invalid_yaml": "The YAML is invalid.",
-      "invalid_users": "Each user needs a role value.",
-      "invalid_dashboards": "Each dashboard needs a roles list.",
-      "invalid_defaults": "Default dashboards must be role-to-dashboard text pairs.",
-      "missing_role": "Enter a role.",
-      "missing_user": "Select a user."
+      "invalid_yaml": "Das YAML ist ungültig.",
+      "invalid_users": "Jeder Benutzer braucht einen role-Wert.",
+      "invalid_dashboards": "Jedes Dashboard braucht eine roles-Liste.",
+      "invalid_defaults": "Standard-Dashboards müssen Rolle-zu-Dashboard-Textpaare sein.",
+      "missing_role": "Rolle eintragen.",
+      "missing_user": "Benutzer auswählen."
     }
   }
 }

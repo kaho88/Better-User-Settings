@@ -10,6 +10,7 @@ import yaml
 from homeassistant import config_entries
 from homeassistant.const import CONF_NAME
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers import selector
 
 from .const import (
     CONF_DASHBOARDS_YAML,
@@ -28,6 +29,17 @@ from .const import (
 
 CONF_ASSIGNED_ROLE = "assigned_role"
 CONF_SELECTED_USER = "selected_user"
+
+MULTILINE_TEXT_SELECTOR = selector.TextSelector(
+    selector.TextSelectorConfig(
+        multiline=True,
+        type=selector.TextSelectorType.TEXT,
+    )
+)
+
+TEXT_SELECTOR = selector.TextSelector(
+    selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
+)
 
 
 class BetterDashboardRolesConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -136,7 +148,7 @@ class BetterDashboardRolesOptionsFlow(config_entries.OptionsFlow):
                     vol.Required(CONF_SELECTED_USER): vol.In(
                         await _async_user_choices(self.hass)
                     ),
-                    vol.Required(CONF_ASSIGNED_ROLE): cv.string,
+                    vol.Required(CONF_ASSIGNED_ROLE): TEXT_SELECTOR,
                 }
             ),
             errors=errors,
@@ -151,17 +163,17 @@ def _data_schema(values: dict[str, Any] | None = None) -> vol.Schema:
             vol.Optional(
                 CONF_USERS_YAML,
                 default=values.get(CONF_USERS_YAML, DEFAULT_USERS_YAML),
-            ): cv.string,
+            ): MULTILINE_TEXT_SELECTOR,
             vol.Optional(
                 CONF_DASHBOARDS_YAML,
                 default=values.get(CONF_DASHBOARDS_YAML, DEFAULT_DASHBOARDS_YAML),
-            ): cv.string,
+            ): MULTILINE_TEXT_SELECTOR,
             vol.Optional(
                 CONF_DEFAULT_DASHBOARD_YAML,
                 default=values.get(
                     CONF_DEFAULT_DASHBOARD_YAML, DEFAULT_DASHBOARD_YAML
                 ),
-            ): cv.string,
+            ): MULTILINE_TEXT_SELECTOR,
             vol.Optional(
                 OPT_HIDE_SIDEBAR_ITEMS,
                 default=values.get(
