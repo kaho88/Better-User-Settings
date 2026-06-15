@@ -3,65 +3,81 @@
     "step": {
       "user": {
         "title": "Better Dashboard Roles",
-        "description": "Dashboard-Rollen einrichten. Die großen Felder sind YAML-Ausschnitte ohne den obersten better_dashboard_roles-Schlüssel.",
+        "description": "Dashboard-Rollen einrichten. Die grossen Felder sind YAML-Ausschnitte ohne den obersten better_dashboard_roles-Schluessel.",
         "data": {
           "users_yaml": "Benutzer und Rollen",
-          "dashboards_yaml": "Dashboards und erlaubte Rollen",
-          "default_dashboard_yaml": "Standard-Dashboard je Rolle",
+          "groups_yaml": "Gruppen und Benutzer",
+          "dashboards_yaml": "Dashboards und erlaubte Gruppen/Rollen",
+          "default_dashboard_yaml": "Standard-Dashboard je Gruppe/Rolle",
           "hide_sidebar_items": "Sidebar-Dashboard-Links ausblenden",
           "redirect_blocked_dashboards": "Nicht erlaubte Dashboards umleiten",
-          "hide_admin_menu_for_non_admin": "Admin-Menü für Nicht-Admins ausblenden",
+          "hide_admin_menu_for_non_admin": "Admin-Menue fuer Nicht-Admins ausblenden",
           "debug": "Debug-Logs aktivieren"
         }
       }
     },
     "error": {
-      "invalid_yaml": "Das YAML ist ungültig.",
-      "invalid_users": "Jeder Benutzer braucht einen role-Wert.",
-      "invalid_dashboards": "Jedes Dashboard braucht eine roles-Liste.",
-      "invalid_defaults": "Standard-Dashboards müssen Rolle-zu-Dashboard-Textpaare sein."
+      "invalid_yaml": "Das YAML ist ungueltig.",
+      "invalid_users": "Jeder Benutzer braucht role, group oder groups.",
+      "invalid_groups": "Jede Gruppe braucht eine users-Liste.",
+      "invalid_dashboards": "Jedes Dashboard braucht eine roles- oder groups-Liste.",
+      "invalid_defaults": "Standard-Dashboards muessen Gruppe/Rolle-zu-Dashboard-Textpaare sein."
     },
     "abort": {
-      "already_configured": "Better Dashboard Roles is already configured."
+      "already_configured": "Better Dashboard Roles ist bereits eingerichtet."
     }
   },
   "options": {
     "menu": {
       "init": {
-        "assign_user": "Benutzerrolle setzen",
+        "assign_user_group": "Benutzer einer Gruppe zuweisen",
+        "assign_dashboard_group": "Dashboard fuer Gruppe freigeben",
         "edit_all": "Komplette Konfiguration bearbeiten"
       }
     },
     "step": {
       "edit_all": {
         "title": "Better Dashboard Roles",
-        "description": "Dashboard-Rollen bearbeiten. Änderungen werden in Home Assistant gespeichert; configuration.yaml muss dafür nicht angepasst werden.",
+        "description": "Dashboard-Rollen bearbeiten. Aenderungen werden in Home Assistant gespeichert; configuration.yaml muss dafuer nicht angepasst werden.",
         "data": {
           "users_yaml": "Benutzer und Rollen",
-          "dashboards_yaml": "Dashboards und erlaubte Rollen",
-          "default_dashboard_yaml": "Standard-Dashboard je Rolle",
+          "groups_yaml": "Gruppen und Benutzer",
+          "dashboards_yaml": "Dashboards und erlaubte Gruppen/Rollen",
+          "default_dashboard_yaml": "Standard-Dashboard je Gruppe/Rolle",
           "hide_sidebar_items": "Sidebar-Dashboard-Links ausblenden",
           "redirect_blocked_dashboards": "Nicht erlaubte Dashboards umleiten",
-          "hide_admin_menu_for_non_admin": "Admin-Menü für Nicht-Admins ausblenden",
+          "hide_admin_menu_for_non_admin": "Admin-Menue fuer Nicht-Admins ausblenden",
           "debug": "Debug-Logs aktivieren"
         }
       },
-      "assign_user": {
-        "title": "Benutzerrolle setzen",
-        "description": "Home-Assistant-Benutzer auswählen und Rolle eintragen. Die Zuordnung wird in Home Assistant gespeichert.",
+      "assign_user_group": {
+        "title": "Benutzer einer Gruppe zuweisen",
+        "description": "Home-Assistant-Benutzer auswaehlen und Gruppe eintragen. Die Zuordnung wird in Home Assistant gespeichert.",
         "data": {
           "selected_user": "Home-Assistant-Benutzer",
-          "assigned_role": "Rolle"
+          "assigned_group": "Gruppe"
+        }
+      },
+      "assign_dashboard_group": {
+        "title": "Dashboard fuer Gruppe freigeben",
+        "description": "Dashboard auswaehlen und einer Gruppe erlauben. Wenn Home Assistant keine Dashboards liefert, nutze die komplette Konfiguration als Fallback.",
+        "data": {
+          "selected_dashboard": "Dashboard",
+          "assigned_group": "Gruppe",
+          "set_as_default": "Auch als Standard-Dashboard dieser Gruppe setzen"
         }
       }
     },
     "error": {
-      "invalid_yaml": "Das YAML ist ungültig.",
-      "invalid_users": "Jeder Benutzer braucht einen role-Wert.",
-      "invalid_dashboards": "Jedes Dashboard braucht eine roles-Liste.",
-      "invalid_defaults": "Standard-Dashboards müssen Rolle-zu-Dashboard-Textpaare sein.",
-      "missing_role": "Rolle eintragen.",
-      "missing_user": "Benutzer auswählen."
+      "invalid_yaml": "Das YAML ist ungueltig.",
+      "invalid_users": "Jeder Benutzer braucht role, group oder groups.",
+      "invalid_groups": "Jede Gruppe braucht eine users-Liste.",
+      "invalid_dashboards": "Jedes Dashboard braucht eine roles- oder groups-Liste.",
+      "invalid_defaults": "Standard-Dashboards muessen Gruppe/Rolle-zu-Dashboard-Textpaare sein.",
+      "missing_group": "Gruppe eintragen.",
+      "missing_user": "Benutzer auswaehlen.",
+      "missing_dashboard": "Dashboard auswaehlen.",
+      "no_dashboards_found": "Es wurden keine Dashboards gefunden."
     }
   }
 }

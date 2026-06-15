@@ -3,14 +3,18 @@
 DOMAIN = "better_dashboard_roles"
 
 CONF_USERS = "users"
+CONF_GROUPS = "groups"
 CONF_DASHBOARDS = "dashboards"
 CONF_DEFAULT_DASHBOARD = "default_dashboard"
 CONF_OPTIONS = "options"
 
+CONF_GROUP = "group"
 CONF_ROLE = "role"
+CONF_GROUPS_LIST = "groups"
 CONF_ROLES = "roles"
 
 CONF_USERS_YAML = "users_yaml"
+CONF_GROUPS_YAML = "groups_yaml"
 CONF_DASHBOARDS_YAML = "dashboards_yaml"
 CONF_DEFAULT_DASHBOARD_YAML = "default_dashboard_yaml"
 
@@ -28,25 +32,28 @@ DEFAULT_OPTIONS = {
     OPT_DEBUG: False,
 }
 
-DEFAULT_USERS_YAML = """schwiegervater:
-  role: garten
-schwiegermutter:
-  role: garten
-daniel:
-  role: admin
+DEFAULT_USERS_YAML = "{}\n"
+
+DEFAULT_GROUPS_YAML = """garten:
+  users:
+    - schwiegervater
+    - schwiegermutter
+admins:
+  users:
+    - daniel
 """
 
 DEFAULT_DASHBOARDS_YAML = """lovelace-garten:
-  roles:
+  groups:
     - garten
-    - admin
+    - admins
 lovelace-wohnung:
-  roles:
-    - admin
+  groups:
+    - admins
     - wohnung
 """
 
 DEFAULT_DASHBOARD_YAML = """garten: lovelace-garten
-admin: lovelace-wohnung
+admins: lovelace-wohnung
 wohnung: lovelace-wohnung
 """

@@ -1,6 +1,6 @@
 # Better Dashboard Roles
 
-Better Dashboard Roles ist eine HACS-kompatible Home-Assistant Custom Integration mit einer kleinen Lovelace Frontend-Resource. Das Plugin filtert Dashboard-Links in der Sidebar anhand einer YAML-Rollenkonfiguration und kann Benutzer auf ein Rollen-Default-Dashboard umleiten.
+Better Dashboard Roles ist eine HACS-kompatible Home-Assistant Custom Integration mit einer kleinen Lovelace Frontend-Resource. Das Plugin filtert Dashboard-Links in der Sidebar anhand von Gruppen/Rollen und kann Benutzer auf ein Gruppen-Default-Dashboard umleiten.
 
 ## Wichtiger Sicherheitshinweis
 
@@ -12,7 +12,7 @@ Es versteckt und redirectet nur im Home-Assistant Frontend. Entitäten, Dashboar
 
 - YAML-Konfiguration in `configuration.yaml`
 - Backend-Endpoint: `GET /api/better_dashboard_roles/config`
-- Sidebar-Dashboard-Links anhand erlaubter Rollen ausblenden
+- Sidebar-Dashboard-Links anhand erlaubter Gruppen oder Rollen ausblenden
 - Optionaler Redirect von blockierten Dashboard-URLs
 - Optionales Ausblenden typischer Admin-/Einstellungsmenüs für Nicht-Admin-Rollen
 - Robust gegen dynamisch gerenderte Home-Assistant Sidebar per `MutationObserver`
@@ -48,14 +48,15 @@ Danach Browser-Cache leeren oder die Home-Assistant App komplett neu starten.
 
 ## Konfiguration über die Home-Assistant UI
 
-Nach dem Hinzufügen der Integration kannst du unter `Einstellungen` -> `Geräte & Dienste` -> `Better Dashboard Roles` -> `Konfigurieren` die Rollen verwalten.
+Nach dem Hinzufügen der Integration kannst du unter `Einstellungen` -> `Geräte & Dienste` -> `Better Dashboard Roles` -> `Konfigurieren` die Gruppen und Dashboard-Rechte verwalten.
 
 Der Options-Dialog bietet zwei Wege:
 
-- `Assign user role`: Home-Assistant-Benutzer auswählen, Rolle eintragen, speichern.
-- `Edit full configuration`: komplette Rollen-, Dashboard- und Default-Dashboard-Konfiguration als YAML-Snippets bearbeiten.
+- `Benutzer einer Gruppe zuweisen`: Home-Assistant-Benutzer auswählen, Gruppe eintragen, speichern.
+- `Dashboard fuer Gruppe freigeben`: vorhandenes Dashboard aus Dropdown auswählen, Gruppe eintragen, optional als Standard-Dashboard setzen.
+- `Komplette Konfiguration bearbeiten`: Gruppen-, Dashboard- und Default-Dashboard-Konfiguration als YAML-Snippets bearbeiten.
 
-Die UI-Konfiguration wird in Home Assistants `.storage` gespeichert. Du musst für Rollenänderungen an Benutzern nicht mehr `configuration.yaml` bearbeiten.
+Die UI-Konfiguration wird in Home Assistants `.storage` gespeichert. Du musst für Gruppenzuweisungen nicht mehr `configuration.yaml` bearbeiten.
 
 ## Optionale YAML-Konfiguration
 
@@ -65,27 +66,28 @@ In `configuration.yaml`:
 
 ```yaml
 better_dashboard_roles:
-  users:
-    schwiegervater:
-      role: garten
-    schwiegermutter:
-      role: garten
-    daniel:
-      role: admin
+  groups:
+    garten:
+      users:
+        - schwiegervater
+        - schwiegermutter
+    admins:
+      users:
+        - daniel
 
   dashboards:
     lovelace-garten:
-      roles:
+      groups:
         - garten
-        - admin
+        - admins
     lovelace-wohnung:
-      roles:
-        - admin
+      groups:
+        - admins
         - wohnung
 
   default_dashboard:
     garten: lovelace-garten
-    admin: lovelace-wohnung
+    admins: lovelace-wohnung
     wohnung: lovelace-wohnung
 
   options:
@@ -99,9 +101,13 @@ Nach jeder Änderung an `configuration.yaml` muss Home Assistant neu gestartet w
 
 ## Konfiguration
 
-`users` ordnet Home-Assistant-Benutzern eine Rolle zu. Der Schlüssel sollte dem angezeigten HA-Benutzernamen entsprechen. Alternativ kann auch die User-ID verwendet werden, falls der Name nicht stabil ist.
+`groups` ordnet Gruppen eine Liste von Home-Assistant-Benutzern zu. Verwende den angezeigten HA-Benutzernamen oder stabiler die `user_id`, die der API-Endpoint zurückgibt.
 
-`dashboards` definiert, welche Rollen ein Dashboard sehen dürfen. Die Dashboard-ID entspricht dem URL-Pfad ohne führenden Slash.
+`users` ist weiterhin als Legacy-Konfiguration möglich. Dort können einzelne Benutzer direkt eine `role`, `group` oder `groups` bekommen. Für neue Setups ist `groups` übersichtlicher.
+
+`dashboards` definiert, welche Gruppen oder Rollen ein Dashboard sehen dürfen. Die Dashboard-ID entspricht dem URL-Pfad ohne führenden Slash.
+
+Im UI-Dialog `Dashboard fuer Gruppe freigeben` versucht die Integration, die in Home Assistant angelegten Dashboards auszulesen und als Dropdown anzubieten. Das ist bewusst defensiv umgesetzt, weil Home Assistant Dashboard-Daten intern je nach Version anders ablegt. Wenn ein Dashboard dort nicht auftaucht, kannst du es weiterhin in `Komplette Konfiguration bearbeiten` manuell eintragen.
 
 Beispiele:
 
@@ -110,7 +116,7 @@ Beispiele:
 - `dashboard-garten` entspricht `/dashboard-garten`
 - `lovelace` entspricht `/lovelace`
 
-`default_dashboard` definiert das Ziel für Redirects pro Rolle. Wenn ein Benutzer keine Rolle hat, wird automatisch `guest` verwendet. Hat `guest` kein Default-Dashboard, wird nicht redirectet.
+`default_dashboard` definiert das Ziel für Redirects pro Gruppe oder Rolle. Wenn ein Benutzer keine Gruppe und keine Rolle hat, wird automatisch `guest` verwendet. Hat `guest` kein Default-Dashboard, wird nicht redirectet.
 
 ## Unterstützte Dashboard-URLs
 
@@ -131,11 +137,13 @@ Der Endpoint `GET /api/better_dashboard_roles/config` liefert für den aktuell e
 {
   "username": "daniel",
   "user_id": "abc123",
-  "role": "admin",
+  "role": "guest",
+  "primary_group": "admins",
+  "groups": ["admins"],
   "allowed_dashboards": ["lovelace-garten", "lovelace-wohnung"],
   "default_dashboard": "lovelace-wohnung",
   "default_dashboards": {
-    "admin": "lovelace-wohnung"
+    "admins": "lovelace-wohnung"
   },
   "options": {
     "hide_sidebar_items": true,

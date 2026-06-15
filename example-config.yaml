@@ -1,25 +1,26 @@
 better_dashboard_roles:
-  users:
-    schwiegervater:
-      role: garten
-    schwiegermutter:
-      role: garten
-    daniel:
-      role: admin
+  groups:
+    garten:
+      users:
+        - schwiegervater
+        - schwiegermutter
+    admins:
+      users:
+        - daniel
 
   dashboards:
     lovelace-garten:
-      roles:
+      groups:
         - garten
-        - admin
+        - admins
     lovelace-wohnung:
-      roles:
-        - admin
+      groups:
+        - admins
         - wohnung
 
   default_dashboard:
     garten: lovelace-garten
-    admin: lovelace-wohnung
+    admins: lovelace-wohnung
     wohnung: lovelace-wohnung
 
   options:

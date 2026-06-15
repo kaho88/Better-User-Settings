@@ -165,7 +165,7 @@
 
     if (
       state.config?.options?.hide_admin_menu_for_non_admin &&
-      state.config?.role !== ADMIN_ROLE
+      !isAdminPrincipal()
     ) {
       return ADMIN_PATH_PREFIXES.some(
         (prefix) => path === prefix || path.startsWith(`${prefix}/`)
@@ -173,6 +173,17 @@
     }
 
     return false;
+  }
+
+  function isAdminPrincipal() {
+    const groups = state.config?.groups || [];
+    return (
+      state.config?.role === ADMIN_ROLE ||
+      state.config?.primary_group === ADMIN_ROLE ||
+      state.config?.primary_group === "admins" ||
+      groups.includes(ADMIN_ROLE) ||
+      groups.includes("admins")
+    );
   }
 
   function findSidebarRoots() {

@@ -9,15 +9,16 @@ import yaml
 
 from homeassistant import config_entries
 from homeassistant.const import CONF_NAME
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import selector
 
 from .const import (
     CONF_DASHBOARDS_YAML,
     CONF_DEFAULT_DASHBOARD_YAML,
+    CONF_GROUPS_YAML,
     CONF_USERS_YAML,
     DEFAULT_DASHBOARD_YAML,
     DEFAULT_DASHBOARDS_YAML,
+    DEFAULT_GROUPS_YAML,
     DEFAULT_OPTIONS,
     DEFAULT_USERS_YAML,
     DOMAIN,
@@ -27,7 +28,9 @@ from .const import (
     OPT_REDIRECT_BLOCKED_DASHBOARDS,
 )
 
-CONF_ASSIGNED_ROLE = "assigned_role"
+CONF_ASSIGNED_GROUP = "assigned_group"
+CONF_SELECTED_DASHBOARD = "selected_dashboard"
+CONF_SET_AS_DEFAULT = "set_as_default"
 CONF_SELECTED_USER = "selected_user"
 
 MULTILINE_TEXT_SELECTOR = selector.TextSelector(
@@ -91,7 +94,7 @@ class BetterDashboardRolesOptionsFlow(config_entries.OptionsFlow):
         """Show the options menu."""
         return self.async_show_menu(
             step_id="init",
-            menu_options=["assign_user", "edit_all"],
+            menu_options=["assign_user_group", "assign_dashboard_group", "edit_all"],
         )
 
     async def async_step_edit_all(
@@ -110,45 +113,117 @@ class BetterDashboardRolesOptionsFlow(config_entries.OptionsFlow):
             errors=errors,
         )
 
-    async def async_step_assign_user(
+    async def async_step_assign_user_group(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
-        """Assign a role to one Home Assistant user."""
+        """Assign one Home Assistant user to a group."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            role = user_input.get(CONF_ASSIGNED_ROLE, "").strip()
+            group = user_input.get(CONF_ASSIGNED_GROUP, "").strip()
             user_key = user_input.get(CONF_SELECTED_USER)
 
-            if not role:
-                errors[CONF_ASSIGNED_ROLE] = "missing_role"
+            if not group:
+                errors[CONF_ASSIGNED_GROUP] = "missing_group"
             elif not user_key:
                 errors[CONF_SELECTED_USER] = "missing_user"
             else:
                 options = dict(self._config_entry.options)
                 try:
-                    users = _parse_yaml_mapping(options.get(CONF_USERS_YAML, ""))
+                    groups = _parse_yaml_mapping(options.get(CONF_GROUPS_YAML, ""))
                 except (TypeError, yaml.YAMLError):
                     errors[CONF_SELECTED_USER] = "invalid_yaml"
-                    users = {}
+                    groups = {}
 
             if not errors and user_input is not None:
-                users[user_key] = {"role": role}
-                options[CONF_USERS_YAML] = yaml.safe_dump(
-                    users,
+                group_config = groups.setdefault(group, {})
+                users = group_config.setdefault("users", [])
+                if user_key not in users:
+                    users.append(user_key)
+                options[CONF_GROUPS_YAML] = yaml.safe_dump(
+                    groups,
                     allow_unicode=True,
                     sort_keys=False,
                 )
                 return self.async_create_entry(title="", data=options)
 
         return self.async_show_form(
-            step_id="assign_user",
+            step_id="assign_user_group",
             data_schema=vol.Schema(
                 {
                     vol.Required(CONF_SELECTED_USER): vol.In(
                         await _async_user_choices(self.hass)
                     ),
-                    vol.Required(CONF_ASSIGNED_ROLE): TEXT_SELECTOR,
+                    vol.Required(CONF_ASSIGNED_GROUP): TEXT_SELECTOR,
+                }
+            ),
+            errors=errors,
+        )
+
+    async def async_step_assign_dashboard_group(
+        self, user_input: dict[str, Any] | None = None
+    ) -> config_entries.FlowResult:
+        """Allow one group to access one dashboard."""
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            dashboard_id = user_input.get(CONF_SELECTED_DASHBOARD)
+            group = user_input.get(CONF_ASSIGNED_GROUP, "").strip()
+            set_as_default = user_input.get(CONF_SET_AS_DEFAULT, False)
+
+            if not dashboard_id:
+                errors[CONF_SELECTED_DASHBOARD] = "missing_dashboard"
+            elif not group:
+                errors[CONF_ASSIGNED_GROUP] = "missing_group"
+            else:
+                options = dict(self._config_entry.options)
+                try:
+                    dashboards = _parse_yaml_mapping(
+                        options.get(CONF_DASHBOARDS_YAML, "")
+                    )
+                    default_dashboards = _parse_yaml_mapping(
+                        options.get(CONF_DEFAULT_DASHBOARD_YAML, "")
+                    )
+                except (TypeError, yaml.YAMLError):
+                    errors[CONF_SELECTED_DASHBOARD] = "invalid_yaml"
+                    dashboards = {}
+                    default_dashboards = {}
+
+            if not errors and user_input is not None:
+                dashboard_config = dashboards.setdefault(dashboard_id, {})
+                groups = dashboard_config.setdefault("groups", [])
+                if group not in groups:
+                    groups.append(group)
+
+                options[CONF_DASHBOARDS_YAML] = yaml.safe_dump(
+                    dashboards,
+                    allow_unicode=True,
+                    sort_keys=False,
+                )
+
+                if set_as_default:
+                    default_dashboards[group] = dashboard_id
+                    options[CONF_DEFAULT_DASHBOARD_YAML] = yaml.safe_dump(
+                        default_dashboards,
+                        allow_unicode=True,
+                        sort_keys=False,
+                    )
+
+                return self.async_create_entry(title="", data=options)
+
+        dashboard_choices = await _async_dashboard_choices(
+            self.hass, self._config_entry.options
+        )
+        if not dashboard_choices:
+            errors["base"] = "no_dashboards_found"
+
+        return self.async_show_form(
+            step_id="assign_dashboard_group",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_SELECTED_DASHBOARD): vol.In(dashboard_choices),
+                    vol.Required(CONF_ASSIGNED_GROUP): TEXT_SELECTOR,
+                    vol.Optional(CONF_SET_AS_DEFAULT, default=False): bool,
                 }
             ),
             errors=errors,
@@ -163,6 +238,10 @@ def _data_schema(values: dict[str, Any] | None = None) -> vol.Schema:
             vol.Optional(
                 CONF_USERS_YAML,
                 default=values.get(CONF_USERS_YAML, DEFAULT_USERS_YAML),
+            ): MULTILINE_TEXT_SELECTOR,
+            vol.Optional(
+                CONF_GROUPS_YAML,
+                default=values.get(CONF_GROUPS_YAML, DEFAULT_GROUPS_YAML),
             ): MULTILINE_TEXT_SELECTOR,
             vol.Optional(
                 CONF_DASHBOARDS_YAML,
@@ -208,6 +287,7 @@ def _validate_user_input(user_input: dict[str, Any]) -> dict[str, str]:
 
     for field in (
         CONF_USERS_YAML,
+        CONF_GROUPS_YAML,
         CONF_DASHBOARDS_YAML,
         CONF_DEFAULT_DASHBOARD_YAML,
     ):
@@ -219,20 +299,44 @@ def _validate_user_input(user_input: dict[str, Any]) -> dict[str, str]:
 
         if field == CONF_USERS_YAML:
             for user_config in value.values():
-                if not isinstance(user_config, dict) or not user_config.get("role"):
+                if not isinstance(user_config, dict) or not (
+                    user_config.get("role")
+                    or user_config.get("group")
+                    or user_config.get("groups")
+                ):
                     errors[field] = "invalid_users"
+                    break
+
+        if field == CONF_GROUPS_YAML:
+            for group_config in value.values():
+                users = (
+                    group_config.get("users")
+                    if isinstance(group_config, dict)
+                    else None
+                )
+                if not isinstance(users, list) or not all(
+                    isinstance(user, str) for user in users
+                ):
+                    errors[field] = "invalid_groups"
                     break
 
         if field == CONF_DASHBOARDS_YAML:
             for dashboard_config in value.values():
-                roles = (
-                    dashboard_config.get("roles")
-                    if isinstance(dashboard_config, dict)
-                    else None
-                )
-                if not isinstance(roles, list) or not all(
-                    isinstance(role, str) for role in roles
-                ):
+                if not isinstance(dashboard_config, dict):
+                    errors[field] = "invalid_dashboards"
+                    break
+                roles = dashboard_config.get("roles", [])
+                groups = dashboard_config.get("groups", [])
+                if not roles and not groups:
+                    errors[field] = "invalid_dashboards"
+                    break
+                if not isinstance(roles, list) or not isinstance(groups, list):
+                    errors[field] = "invalid_dashboards"
+                    break
+                if not all(isinstance(role, str) for role in roles):
+                    errors[field] = "invalid_dashboards"
+                    break
+                if not all(isinstance(group, str) for group in groups):
                     errors[field] = "invalid_dashboards"
                     break
 
@@ -267,3 +371,100 @@ async def _async_user_choices(hass) -> dict[str, str]:
         choices[user_id] = f"{name} ({user_id})"
 
     return choices
+
+
+async def _async_dashboard_choices(hass, options: dict[str, Any]) -> dict[str, str]:
+    """Return known Home Assistant dashboards as selector choices."""
+    choices: dict[str, str] = {"lovelace": "Overview (/lovelace)"}
+
+    _collect_dashboard_choices(hass.data.get("lovelace"), choices)
+    _collect_dashboard_choices(hass.data.get("frontend_panels"), choices)
+
+    try:
+        configured_dashboards = _parse_yaml_mapping(
+            options.get(CONF_DASHBOARDS_YAML, "")
+        )
+    except (TypeError, yaml.YAMLError):
+        configured_dashboards = {}
+
+    for dashboard_id in configured_dashboards:
+        normalized = _normalize_dashboard_id(str(dashboard_id))
+        if normalized:
+            choices.setdefault(normalized, f"{normalized} (configured)")
+
+    return dict(sorted(choices.items(), key=lambda item: item[1].lower()))
+
+
+def _collect_dashboard_choices(
+    source: Any, choices: dict[str, str], depth: int = 0
+) -> None:
+    """Collect dashboard-like url paths from HA internals without version locks."""
+    if source is None or depth > 4:
+        return
+
+    if isinstance(source, dict):
+        values = source.values()
+        for key, value in source.items():
+            if isinstance(key, str):
+                _add_dashboard_choice(key, value, choices)
+            if isinstance(value, (str, int, float, bool)) or value is None:
+                continue
+            _collect_dashboard_choices(value, choices, depth + 1)
+        return
+
+    if isinstance(source, (list, tuple, set)):
+        for item in source:
+            _collect_dashboard_choices(item, choices, depth + 1)
+        return
+
+    for attr in ("dashboards", "url_path", "urlPath", "path", "id", "title"):
+        if hasattr(source, attr):
+            value = getattr(source, attr)
+            if attr == "dashboards":
+                _collect_dashboard_choices(value, choices, depth + 1)
+            else:
+                _add_dashboard_choice(str(value), source, choices)
+
+
+def _add_dashboard_choice(
+    raw_dashboard_id: str, source: Any, choices: dict[str, str]
+) -> None:
+    """Add one dashboard id if it looks like a dashboard url path."""
+    dashboard_id = _normalize_dashboard_id(raw_dashboard_id)
+    if not dashboard_id:
+        return
+
+    title = _dashboard_title(source) or dashboard_id
+    choices.setdefault(dashboard_id, f"{title} (/{dashboard_id})")
+
+
+def _normalize_dashboard_id(value: str) -> str:
+    """Normalize HA dashboard path/id to the first URL segment."""
+    dashboard_id = value.strip().strip("/")
+    if not dashboard_id:
+        return ""
+
+    dashboard_id = dashboard_id.split("/")[0]
+    if dashboard_id == "lovelace" or dashboard_id.startswith(
+        ("lovelace-", "dashboard-")
+    ):
+        return dashboard_id
+
+    return ""
+
+
+def _dashboard_title(source: Any) -> str | None:
+    """Best-effort dashboard title extraction."""
+    if isinstance(source, dict):
+        for key in ("title", "name"):
+            if source.get(key):
+                return str(source[key])
+        return None
+
+    for attr in ("title", "name"):
+        if hasattr(source, attr):
+            value = getattr(source, attr)
+            if value:
+                return str(value)
+
+    return None
