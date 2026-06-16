@@ -1,30 +1,33 @@
-better_dashboard_roles:
+﻿better_user_settings:
   groups:
     garten:
       users:
-        - schwiegervater
-        - schwiegermutter
+        - home_assistant_user_id_1
+        - home_assistant_user_id_2
     admins:
       users:
-        - daniel
+        - admin_user_id
 
   dashboards:
-    lovelace-garten:
+    /dashboard-garten:
       groups:
         - garten
         - admins
-    lovelace-wohnung:
+    /lovelace-tablet:
       groups:
         - admins
-        - wohnung
 
-  default_dashboard:
-    garten: lovelace-garten
-    admins: lovelace-wohnung
-    wohnung: lovelace-wohnung
+  sidebar_items:
+    /map:
+      groups:
+        - garten
+        - admins
+    /logbook:
+      groups:
+        - admins
 
   options:
     hide_sidebar_items: true
     redirect_blocked_dashboards: true
-    hide_admin_menu_for_non_admin: true
+    hide_admin_menu_for_non_admin: false
     debug: false

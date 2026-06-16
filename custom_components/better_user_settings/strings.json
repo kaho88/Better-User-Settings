@@ -1,0 +1,83 @@
+﻿{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Better User Settings",
+        "description": "Better User Settings wird angelegt. Danach kannst du Benutzer, Gruppen und Dashboards ueber Konfigurieren verwalten.",
+        "data": {
+          "users_yaml": "Benutzer und Rollen",
+          "groups_yaml": "Gruppen und Benutzer",
+          "dashboards_yaml": "Dashboards und erlaubte Gruppen/Rollen",
+          "default_dashboard_yaml": "Standard-Dashboard je Gruppe/Rolle",
+          "hide_sidebar_items": "Sidebar-Dashboard-Links ausblenden",
+          "redirect_blocked_dashboards": "Nicht erlaubte Dashboards umleiten",
+          "hide_admin_menu_for_non_admin": "Admin-Menue fuer Nicht-Admins ausblenden",
+          "debug": "Debug-Logs aktivieren"
+        }
+      }
+    },
+    "error": {
+      "invalid_yaml": "Das YAML ist ungueltig.",
+      "invalid_users": "Jeder Benutzer braucht role, group oder groups.",
+      "invalid_groups": "Jede Gruppe braucht eine users-Liste.",
+      "invalid_dashboards": "Jedes Dashboard braucht eine roles- oder groups-Liste.",
+      "invalid_defaults": "Standard-Dashboards muessen Gruppe/Rolle-zu-Dashboard-Textpaare sein."
+    },
+    "abort": {
+      "already_configured": "Better User Settings ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "menu": {
+      "init": {
+        "assign_user_group": "Benutzer einer Gruppe zuweisen",
+        "assign_dashboard_group": "Dashboard fuer Gruppe freigeben",
+        "edit_all": "Komplette Konfiguration bearbeiten"
+      }
+    },
+    "step": {
+      "edit_all": {
+        "title": "Better User Settings",
+        "description": "Dashboard-Rollen bearbeiten. Aenderungen werden in Home Assistant gespeichert; configuration.yaml muss dafuer nicht angepasst werden.",
+        "data": {
+          "users_yaml": "Benutzer und Rollen",
+          "groups_yaml": "Gruppen und Benutzer",
+          "dashboards_yaml": "Dashboards und erlaubte Gruppen/Rollen",
+          "default_dashboard_yaml": "Standard-Dashboard je Gruppe/Rolle",
+          "hide_sidebar_items": "Sidebar-Dashboard-Links ausblenden",
+          "redirect_blocked_dashboards": "Nicht erlaubte Dashboards umleiten",
+          "hide_admin_menu_for_non_admin": "Admin-Menue fuer Nicht-Admins ausblenden",
+          "debug": "Debug-Logs aktivieren"
+        }
+      },
+      "assign_user_group": {
+        "title": "Benutzer einer Gruppe zuweisen",
+        "description": "Home-Assistant-Benutzer auswaehlen und Gruppe eintragen. Die Zuordnung wird in Home Assistant gespeichert.",
+        "data": {
+          "selected_user": "Home-Assistant-Benutzer",
+          "assigned_group": "Gruppe"
+        }
+      },
+      "assign_dashboard_group": {
+        "title": "Dashboard fuer Gruppe freigeben",
+        "description": "Dashboard auswaehlen und einer Gruppe erlauben. Wenn Home Assistant keine Dashboards liefert, nutze die komplette Konfiguration als Fallback.",
+        "data": {
+          "selected_dashboard": "Dashboard",
+          "assigned_group": "Gruppe",
+          "set_as_default": "Auch als Standard-Dashboard dieser Gruppe setzen"
+        }
+      }
+    },
+    "error": {
+      "invalid_yaml": "Das YAML ist ungueltig.",
+      "invalid_users": "Jeder Benutzer braucht role, group oder groups.",
+      "invalid_groups": "Jede Gruppe braucht eine users-Liste.",
+      "invalid_dashboards": "Jedes Dashboard braucht eine roles- oder groups-Liste.",
+      "invalid_defaults": "Standard-Dashboards muessen Gruppe/Rolle-zu-Dashboard-Textpaare sein.",
+      "missing_group": "Gruppe eintragen.",
+      "missing_user": "Benutzer auswaehlen.",
+      "missing_dashboard": "Dashboard auswaehlen.",
+      "no_dashboards_found": "Es wurden keine Dashboards gefunden."
+    }
+  }
+}

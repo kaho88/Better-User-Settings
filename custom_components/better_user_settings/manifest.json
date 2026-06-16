@@ -1,0 +1,11 @@
+{
+  "domain": "better_user_settings",
+  "name": "Better User Settings",
+  "codeowners": [],
+  "documentation": "https://github.com/custom-components/better-user-settings",
+  "dependencies": ["frontend", "http", "panel_custom", "websocket_api"],
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/custom-components/better-user-settings/issues",
+  "version": "0.1.0"
+}
