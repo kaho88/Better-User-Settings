@@ -44,10 +44,17 @@ class BetterUserSettingsPanel extends HTMLElement {
     this._render();
   }
 
+  _hasGroup(groupId) {
+    return Object.prototype.hasOwnProperty.call(this._groups, groupId);
+  }
+
   _groupOptions() {
     return Object.entries(this._groups)
       .sort((a, b) => (a[1].name || a[0]).localeCompare(b[1].name || b[0]))
-      .map(([id, group]) => `<option value="${id}">${this._escape(group.name || id)}</option>`)
+      .map(
+        ([id, group]) =>
+          `<option value="${this._escape(id)}" ${id === this._selectedGroup ? "selected" : ""}>${this._escape(group.name || id)}</option>`
+      )
       .join("");
   }
 
@@ -180,7 +187,23 @@ class BetterUserSettingsPanel extends HTMLElement {
         <div class="message">${this._escape(this._message)}</div>
       </div>
     `;
+    this._syncSelectValues();
     this._bindEvents();
+  }
+
+  _syncSelectValues() {
+    const groupSelect = this.shadowRoot.querySelector("#group-select");
+    if (groupSelect && this._selectedGroup) {
+      groupSelect.value = this._selectedGroup;
+    }
+    const dashboardSelect = this.shadowRoot.querySelector("#dashboard-select");
+    if (dashboardSelect && this._selectedDashboard) {
+      dashboardSelect.value = this._selectedDashboard;
+    }
+    const sidebarSelect = this.shadowRoot.querySelector("#sidebar-select");
+    if (sidebarSelect && this._selectedSidebarItem) {
+      sidebarSelect.value = this._selectedSidebarItem;
+    }
   }
 
   _renderActiveTab() {
@@ -195,7 +218,11 @@ class BetterUserSettingsPanel extends HTMLElement {
 
   _renderGroups() {
     const selectedUsers = this._selectedGroupUsers();
-    const group = this._groups[this._selectedGroup] || { name: "", users: [] };
+    const selectedGroupId = this._hasGroup(this._selectedGroup)
+      ? this._selectedGroup
+      : Object.keys(this._groups)[0] || "";
+    this._selectedGroup = selectedGroupId;
+    const group = this._groups[selectedGroupId] || { name: "", users: [] };
     return `
       <div class="panel">
         <div class="box">
@@ -211,7 +238,7 @@ class BetterUserSettingsPanel extends HTMLElement {
           </div>
           <div class="field">
             <label>Name</label>
-            <input id="group-name" value="${this._escape(group.name || this._selectedGroup)}">
+            <input id="group-name" value="${this._escape(group.name || selectedGroupId)}">
           </div>
           <button class="primary" id="save-group">Speichern</button>
         </div>
