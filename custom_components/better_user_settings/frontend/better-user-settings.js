@@ -276,19 +276,6 @@
     state.observer.observe(document.documentElement, { childList: true, subtree: true });
     window.addEventListener("location-changed", applyRules);
     window.addEventListener("popstate", applyRules);
-
-    const originalPushState = history.pushState;
-    const originalReplaceState = history.replaceState;
-    history.pushState = function patchedPushState(...args) {
-      const result = originalPushState.apply(this, args);
-      window.dispatchEvent(new Event("location-changed"));
-      return result;
-    };
-    history.replaceState = function patchedReplaceState(...args) {
-      const result = originalReplaceState.apply(this, args);
-      window.dispatchEvent(new Event("location-changed"));
-      return result;
-    };
   }
 
   async function fetchPermissions() {
